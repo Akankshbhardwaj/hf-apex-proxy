@@ -12,17 +12,18 @@ app.use(bodyParser.json());
 app.post('/summarize', async (req, res) => {
     try {
         const inputText = req.body.inputs;
-        const response = await axios.post(
-            'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
-            { inputs: inputText },
-            {
-                headers: {
-                    'Authorization': `Bearer ${HF_TOKEN}`, // backticks
-                    'Content-Type': 'application/json'
-                },
-                timeout: 30000
-            }
-        );
+       const response = await axios.post(
+  'https://api-inference.huggingface.co/models/google/flan-t5-small',
+  { inputs: `Explain: ${inputText}` },
+  {
+    headers: {
+      'Authorization': `Bearer ${HF_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    timeout: 30000
+  }
+);
+
 
         res.json(response.data);
     } catch (error) {
