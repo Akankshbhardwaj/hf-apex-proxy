@@ -5,8 +5,14 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Hugging Face API token stored as environment variable in Render
+// Hugging Face API token (set in Render environment variables)
 const HF_TOKEN = process.env.HUGGING_FACE_TOKEN;
+
+// === Configurable model ===
+// Change this to any free Hugging Face model URL
+let MODEL_URL = 'https://api-inference.huggingface.co/models/facebook/bart-large-cnn';
+// Example alternatives:
+// 'https://api-inference.huggingface.co/models/sshleifer/distilbart-cnn-12-6'
 
 app.use(bodyParser.json());
 
@@ -17,16 +23,14 @@ app.get('/health', (req, res) => res.send('OK'));
 app.post('/summarize', async (req, res) => {
     const inputText = req.body.inputs;
 
-    // Validate input
     if (!inputText || typeof inputText !== 'string') {
         return res.status(400).json({ error: "Missing or invalid 'inputs' in request body." });
     }
 
     try {
-        // Call Hugging Face Inference API
         const response = await axios.post(
-            'https://api-inference.huggingface.co/models/google/flan-t5-small', // Change model here if needed
-            { inputs: `Explain: ${inputText}` },
+            MODEL_URL,
+            { inputs: inputText },
             {
                 headers: {
                     'Authorization': `Bearer ${HF_TOKEN}`,
@@ -36,15 +40,7 @@ app.post('/summarize', async (req, res) => {
             }
         );
 
-        // Return the generated text
-        if (Array.isArray(response.data) && response.data[0]?.generated_text) {
-            res.json({ summary: response.data[0].generated_text });
-        } else if (response.data.error) {
-            res.status(502).json({ error: response.data.error });
-        } else {
-            res.json(response.data);
-        }
-
+        res.json(response.data);
     } catch (error) {
         if (error.response && error.response.data) {
             return res.status(error.response.status || 500).json({
@@ -55,5 +51,4 @@ app.post('/summarize', async (req, res) => {
     }
 });
 
-// Start server
 app.listen(PORT, () => console.log(`Proxy running on port ${PORT}`));
