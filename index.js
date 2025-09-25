@@ -4,16 +4,25 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Replace with your Hugging Face API token
+// Hugging Face API token
 const HF_TOKEN = process.env.HUGGING_FACE_TOKEN;
 
 app.use(bodyParser.json());
 
 app.post('/summarize', async (req, res) => {
     try {
-     const inputText = req.body.inputs; 
-        const response = await axios.post( 'https://api-inference.huggingface.co/models/facebook/bart-large-cnn', { inputs: inputText }, { headers: { 'Authorization': Bearer ${HF_TOKEN}, 'Content-Type': 'application/json' }, timeout: 30000 } );
-
+        const inputText = req.body.inputs;
+        const response = await axios.post(
+            'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
+            { inputs: inputText },
+            {
+                headers: {
+                    'Authorization': `Bearer ${HF_TOKEN}`, // backticks
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000
+            }
+        );
 
         res.json(response.data);
     } catch (error) {
