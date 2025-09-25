@@ -12,17 +12,18 @@ app.use(bodyParser.json());
 app.post('/summarize', async (req, res) => {
     try {
         const inputText = req.body.inputs;
-       const response = await axios.post(
-    'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
-    { inputs: inputText },
+      const response = await axios.post(
+    'https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct',
+    { inputs: "Explain Oracle APEX in simple words." },
     {
         headers: {
             'Authorization': `Bearer ${HF_TOKEN}`,
             'Content-Type': 'application/json'
         },
-        timeout: 30000
+        timeout: 60000
     }
 );
+
 
         res.json(response.data);
     } catch (error) {
